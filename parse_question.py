@@ -7,6 +7,17 @@ def addComment(cDict, image_index, c):
         cDict[image_index] = []
     cDict[image_index].append(c)
         
+def build_vocab(root , threshold=0):
+    """Build a simple vocabulary wrapper."""
+    cap_root = root + 'caption/'
+    cap_list = os.listdir(cap_root)
+    counter = Counter()
+    for i, id in enumerate(cap_list):
+        with open(os.path.join(cap_root, id), 'r') as f:
+            caption = f.readline()
+        tokens = nltk.tokenize.word_tokenize(caption.lower())
+        counter.update(tokens)
+
 def main(args):
     qa_pairs_path = args.question_path
     with open(qa_pairs_path) as qa_fp:
@@ -76,15 +87,36 @@ def main(args):
                 c = '%s intersects %s.'%(q['color1_name'], q['color2_name'])
                 addComment(cDict, q['image_index'], c)
 
-    with open(args.insight_path, 'wb') as f:
-        pickle.dump(cDict, f)
+
+    # Comment file in COCO JSON format
+    cCoco =  { 'images': [],
+              'annotations': []
+             } 
+    image_id_counter = 0
+    comment_id_counter = 0    
+    for image_index, comments in cDict.iteritems():
+        cCoco['images'].append({
+            'id': image_id_counter, 
+            'file_name': str(image_index)+ '.png'
+        })
+        for c in comments:
+            cCoco['annotations'].append({
+                'id': comment_id_counter,
+                'caption': c,
+                'image_id': image_id_counter
+            })
+            comment_id_counter += 1
+        image_id_counter += 1
+
+    with open(args.insight_path, 'w') as f:
+        json.dump(cCoco, f)
         print "Saved insights to %s"%args.insight_path
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--insight_path', type=str,
-                       default='./insight.json',
+                       default='./data/sample_train1/insight.json',
                        help='path for saving generated insights list')
     parser.add_argument('--question_path', type=str,
                        default='./data/sample_train1/qa_pairs.json',

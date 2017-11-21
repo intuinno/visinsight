@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 import os
-from data_loader import build_vocab, get_loader
+from data_loader import  get_loader
 from model import DecoderRNN 
 from model import ResNet, ResidualBlock
 from torch.autograd import Variable 
@@ -37,19 +37,16 @@ def main(args):
         transforms.ToTensor(), 
         transforms.Normalize((0.033, 0.032, 0.033), 
                              (0.027, 0.027, 0.027))])
-    
-    # Build vocab  
-    vocab = build_vocab(args.root_path, threshold=0)
-    vocab_path = args.vocab_path
-    with open(vocab_path, 'wb') as f:
-        pickle.dump(vocab, f)
-    len_vocab = vocab.idx
-    print(vocab.idx2word)
+   # Load vocabulary wrapper.
+    with open(args.vocab_path, 'rb') as f:
+        vocab = pickle.load(f)
+	len_vocab = len(vocab)
     
     # Build data loader
-    data_loader = get_loader(args.root_path, vocab, 
+    data_loader = get_loader(args.image_dir, args.caption_path, vocab, 
                              transform, args.batch_size,
-                             shuffle=True, num_workers=args.num_workers) 
+                             shuffle=True, num_workers=args.num_workers)  
+    
 
     # Build the models
     encoder = ResNet(ResidualBlock, [3, 3, 3], len_vocab)
@@ -140,15 +137,14 @@ if __name__ == '__main__':
     parser.add_argument('--model_path', type=str, default='./models/visinsight/' ,
                         help='path for saving trained models')
     parser.add_argument('--crop_size', type=int, default=128,
-                        help='size for randomly cropping images')
-    parser.add_argument('--root_path', type=str, default='data/',
-                        help='path for root')
+                        help='size for randomly cropping images') 
+    parser.add_argument('--image_dir', type=str, default='data/sample_train1/resized_png', help='path for image directory')
     parser.add_argument('--log_step', type=int , default=10,
                         help='step size for printing log info')
     parser.add_argument('--save_step', type=int , default=50,
                         help='step size for saving trained models')
-    parser.add_argument('--insight_path', type=str, default='./data/train1.insight.pkl', 
-                        help='path for insight file')
+    parser.add_argument('--caption_path', type=str, default='./data/sample_train1/insight.json', 
+                        help='path for insight json file')
     parser.add_argument('--vocab_path', type=str, default='./data/vocab.pkl', 
                         help='path for saving vocabulary wrapper')
     # Model parameters
