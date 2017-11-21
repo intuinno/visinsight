@@ -70,7 +70,7 @@ class ResNet(nn.Module):
         self.layer2 = self.make_layer(block, 64, layers[0],2)
         self.layer3 = self.make_layer(block, 128, layers[1],2)
         self.avg_pool = nn.AvgPool2d(8)
-        self.fc = nn.Linear(32768, num_classes)
+        self.fc = nn.Linear(131072, num_classes)
         #self.fc2 = nn.Linear(2048, num_classes)
         #self.init_weights()
 

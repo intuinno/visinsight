@@ -4,6 +4,7 @@ import torch.nn as nn
 import numpy as np
 import os
 from data_loader import  get_loader
+from build_vocab import Vocabulary
 from model import DecoderRNN 
 from model import ResNet, ResidualBlock
 from torch.autograd import Variable 
@@ -138,14 +139,14 @@ if __name__ == '__main__':
                         help='path for saving trained models')
     parser.add_argument('--crop_size', type=int, default=128,
                         help='size for randomly cropping images') 
-    parser.add_argument('--image_dir', type=str, default='data/sample_train1/resized_png', help='path for image directory')
+    parser.add_argument('--image_dir', type=str, default='data/train1/resized_png', help='path for image directory')
     parser.add_argument('--log_step', type=int , default=10,
                         help='step size for printing log info')
     parser.add_argument('--save_step', type=int , default=50,
                         help='step size for saving trained models')
-    parser.add_argument('--caption_path', type=str, default='./data/sample_train1/insight.json', 
+    parser.add_argument('--caption_path', type=str, default='./data/train1/insight.json', 
                         help='path for insight json file')
-    parser.add_argument('--vocab_path', type=str, default='./data/vocab.pkl', 
+    parser.add_argument('--vocab_path', type=str, default='./data/train1/vocab.pkl', 
                         help='path for saving vocabulary wrapper')
     # Model parameters
     parser.add_argument('--embed_size', type=int , default=256 ,
@@ -156,7 +157,7 @@ if __name__ == '__main__':
                         help='number of layers in lstm')
     
     parser.add_argument('--num_epochs', type=int, default=10)
-    parser.add_argument('--batch_size', type=int, default=64)
+    parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--num_workers', type=int, default=8)
     parser.add_argument('--learning_rate', type=float, default=0.001)
     args = parser.parse_args()

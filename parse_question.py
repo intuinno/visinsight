@@ -116,10 +116,10 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--insight_path', type=str,
-                       default='./data/sample_train1/insight.json',
+                       default='./data/train1/insight.json',
                        help='path for saving generated insights list')
     parser.add_argument('--question_path', type=str,
-                       default='./data/sample_train1/qa_pairs.json',
+                       default='./data/train1/qa_pairs.json',
                        help='path for qa_pairs.json file')
     args = parser.parse_args()
     main(args)
