@@ -3,7 +3,8 @@ import torch
 import torch.nn as nn
 import numpy as np
 import os
-from data_loader import build_vocab, get_loader
+from data_loader import get_loader
+from build_vocab import build_vocab, Vocabulary
 from model import ResNet, ResidualBlock
 from attn_model import ResidualBlock, AttnEncoder, AttnDecoderRnn
 from torch.autograd import Variable 
@@ -39,16 +40,13 @@ def main(args):
         transforms.Normalize((0.033, 0.032, 0.033), 
                              (0.027, 0.027, 0.027))])
     
-    # Build vocab  
-    vocab = build_vocab(args.root_path, threshold=0)
-    vocab_path = args.vocab_path
-    with open(vocab_path, 'wb') as f:
-        pickle.dump(vocab, f)
-    len_vocab = vocab.idx
-    print(vocab.idx2word)
-    
+   # Load vocabulary wrapper.
+    with open(args.vocab_path, 'rb') as f:
+        vocab = pickle.load(f)
+	len_vocab = len(vocab)
+
     # Build data loader
-    data_loader = get_loader(args.root_path, vocab, 
+    data_loader = get_loader(args.image_dir, args.caption_path, vocab, 
                              transform, args.batch_size,
                              shuffle=True, num_workers=args.num_workers) 
 
@@ -101,7 +99,7 @@ def main(args):
 
                 #test set accuracy 
                 #print(outputs.view(args.batch_size,-1))
-                print(outputs.max(1)[1].view(args.batch_size, -1))
+                #print(outputs.max(1)[1].view(args.batch_size, -1))
                 outputs_np = outputs.max(1)[1].cpu().data.numpy()
                 targets_np = captions.cpu().data.numpy()
 
@@ -137,8 +135,11 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_path', type=str, default='./models/attn/3object/' ,
+    parser.add_argument('--model_path', type=str, default='./models/visinsight_attn/' ,
                         help='path for saving trained models')
+    parser.add_argument('--image_dir', type=str, default='data/train1/resized_png', help='path for image directory')
+    parser.add_argument('--caption_path', type=str, default='./data/train1/insight.json', 
+                        help='path for insight json file')
     parser.add_argument('--crop_size', type=int, default=128,
                         help='size for randomly cropping images')
     parser.add_argument('--root_path', type=str, default='data/3object/',
@@ -147,7 +148,7 @@ if __name__ == '__main__':
                         help='step size for prining log info')
     parser.add_argument('--save_step', type=int , default=50,
                         help='step size for saving trained models')
-    parser.add_argument('--vocab_path', type=str, default='./data/attn/vocab3.pkl', 
+    parser.add_argument('--vocab_path', type=str, default='./data/train1/vocab.pkl', 
                         help='path for saving vocabulary wrapper')
     # Model parameters
     parser.add_argument('--embed_size', type=int , default=128 ,
@@ -159,9 +160,9 @@ if __name__ == '__main__':
     parser.add_argument('--num_layers', type=int , default=1 ,
                         help='number of layers in lstm')
     
-    parser.add_argument('--num_epochs', type=int, default=10)
-    parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument('--num_workers', type=int, default=8)
+    parser.add_argument('--num_epochs', type=int, default=100)
+    parser.add_argument('--batch_size', type=int, default=128)
+    parser.add_argument('--num_workers', type=int, default=16)
     parser.add_argument('--learning_rate', type=float, default=0.001)
     args = parser.parse_args()
     print(args)

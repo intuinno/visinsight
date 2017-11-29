@@ -31,6 +31,7 @@ class Attn(nn.Module):
 		if de_hidden.size(2) == self.hidden_size:
 			de_hidden = self.attn(de_hidden.squeeze(0))  # batch, feature_size
 
+                en_out = en_out.transpose(2,1)              # batch, img_feature_d, spatial_size
 		de_hidden = de_hidden.unsqueeze(2)         #batch, feature_size, 1 
 		attn_weight = torch.bmm(en_out, de_hidden)   #batch, depth, 1 
 		attn_weight = attn_weight.squeeze(2)

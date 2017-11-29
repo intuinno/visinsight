@@ -50,8 +50,8 @@ def main(args):
     
 
     # Build the models
-    encoder = ResNet(ResidualBlock, [3, 3, 3], len_vocab)
-    decoder = DecoderRNN(len_vocab, args.hidden_size, 
+    encoder = ResNet(ResidualBlock, [3, 3, 3], args.embed_size)
+    decoder = DecoderRNN(args.embed_size, args.hidden_size, 
                          len(vocab), args.num_layers)
 
     #Build atten models 
@@ -153,12 +153,12 @@ if __name__ == '__main__':
                         help='dimension of word embedding vectors')
     parser.add_argument('--hidden_size', type=int , default=512 ,
                         help='dimension of lstm hidden states')
-    parser.add_argument('--num_layers', type=int , default=2 ,
+    parser.add_argument('--num_layers', type=int , default=1 ,
                         help='number of layers in lstm')
     
-    parser.add_argument('--num_epochs', type=int, default=110)
-    parser.add_argument('--batch_size', type=int, default=256)
-    parser.add_argument('--num_workers', type=int, default=16)
+    parser.add_argument('--num_epochs', type=int, default=10)
+    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--num_workers', type=int, default=8)
     parser.add_argument('--learning_rate', type=float, default=0.001)
     args = parser.parse_args()
     print(args)
